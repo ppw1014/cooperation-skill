@@ -11,7 +11,7 @@ description: 双 agent 协作框架(Architect 出卡/裁决/验收/收口 + Impl
 
 | 文件 | 内容 | 谁读 |
 | --- | --- | --- |
-| `protocol.md` | 共同协议:角色三角、生命周期、信道规则、工作区形态 A/B 与握手探测、L1/L2/L3 分级、绿区/红区、体量披露制、工程规约 | 双方必读 |
+| `protocol.md` | 共同协议:角色三角、生命周期、**双 Architect 交叉 review(一轮止损)**、**验收强度分档**、信道规则、工作区形态 A/B 与握手探测、L1/L2/L3 分级、绿区/红区、体量披露制、工程规约 | 双方必读 |
 | `architect.md` | 第一部分:出卡门禁、派卡、信道处理、裁决流程、验收五步、收口序列 | Architect |
 | `implementer.md` | 第二部分:领卡、实施纪律、自检清单、交付报告、打回处理 | Implementer |
 | `anti-patterns.md` | 反模式池(历史教训,持续追加) | 双方 |
@@ -27,6 +27,8 @@ description: 双 agent 协作框架(Architect 出卡/裁决/验收/收口 + Impl
 4. **给 Owner 出启动提示词**:按 `templates/implementer-bootstrap.md` 填空,交 Owner 配置给 Implementer agent——只指路径不复制内容;
 5. **写信道 #1 部署宣告**(模板内含示例),等 Implementer 回 #2 确认已读(顺带完成形态握手);
 6. 建 backlog(若无)→ 出第一张卡(`architect.md` §1)→ 协作开始。
+
+**若项目有两个 agent 都能当 Architect**:可在派出第一张实现卡之前插入一次交叉 review(protocol §2.1)。这个环节收益集中在前几轮、之后急剧转负,**部署时就要把"一轮止损 + 必审四类 + 四个越线信号"讲清楚**,不要等跑起来再收口——它没有自然终点,双方都会不自觉地加码。同时按 protocol §2.2 给 backlog 每张卡标验收强度,对抗档在出卡时点名,不留给验收时临场判断。
 
 ## 日常路由(已部署项目中)
 
