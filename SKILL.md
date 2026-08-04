@@ -1,40 +1,52 @@
 ---
 name: cooperation-skill
-description: 双 agent 协作框架(Architect 出卡/裁决/验收/收口 + Implementer 按卡实现)。用于:在新项目部署双 agent 协作基础设施;日常出任务卡、派卡、处理信道消息、L1/L2/L3 分级裁决、验收交付、收口合入。源自项目 A 的协作规范 v1.5 及实战演化。
+description: 多 agent 协作框架(Architect 出卡/裁决/验收/收口 + Implementer 按卡实现 + 可选 Reviewer 交叉评审)。用于:在新项目部署 agent 协作基础设施;日常出任务卡、派卡、处理信道消息、L1/L2/L3 分级裁决、交付初审、验收合入。源自项目 A 的协作规范 v1.5 及多项目实战演化。
 ---
 
-# 双 agent 协作框架
+# 多 agent 协作框架
 
-一句话:**Architect(出卡/定契约/裁决/验收/merge)+ Implementer(按卡实现/自检/上报发现)+ Owner(人类,决策/验收/触发)**,通过仓库内只追加信道异步协作;任务卡自包含 + 硬边界 + 机器可验收;实施发现分级反馈,裁决前一律按契约。
+一句话:**Architect(出卡/定契约/裁决/终审/merge)+ Implementer(按卡实现/自检/上报发现)+ Reviewer(可选,开工前评审 + 交付初审)+ Owner(人类,决策/验收/触发)**,通过仓库内只追加信道异步协作;任务卡自包含 + 硬边界 + 机器可验收;实施发现分级反馈,裁决前一律按契约。
+
+**Reviewer 是可选角色**——两个 agent 的项目不部署它,其职责全部回落 Architect,框架退化为双 agent 原形。
 
 ## 文件地图
 
 | 文件 | 内容 | 谁读 |
 | --- | --- | --- |
-| `protocol.md` | 共同协议:角色三角、生命周期、**双 Architect 交叉 review(一轮止损)**、**验收强度分档**、信道规则、工作区形态 A/B 与握手探测、L1/L2/L3 分级、绿区/红区、体量披露制、工程规约 | 双方必读 |
-| `architect.md` | 第一部分:出卡门禁、派卡、信道处理、裁决流程、验收五步、收口序列 | Architect |
-| `implementer.md` | 第二部分:领卡、实施纪律、自检清单、交付报告、打回处理 | Implementer |
-| `anti-patterns.md` | 反模式池(历史教训,持续追加) | 双方 |
-| `templates/` | channel 骨架、开发/内容任务卡模板、Implementer 启动提示词模板 | 部署时用 |
+| `protocol.md` | 共同协议:角色分工、生命周期、**开工前交叉 review(一轮止损)**、**验收强度分档**、信道规则(含三方寻址与已读)、工作区形态 A/B 与握手探测、L1/L2/L3 分级、绿区/红区/**评审边界**、体量披露制、工程规约 | 全员必读 |
+| `architect.md` | 出卡门禁、派卡、信道处理、裁决流程、验收五步、收口序列 | Architect |
+| `implementer.md` | 领卡、实施纪律、自检清单、交付报告、打回处理 | Implementer |
+| `reviewer.md` | 文档评审、卡面预审、交付初审(按强度分档)、打回判据、漏检回流 | Reviewer(三方部署时) |
+| `anti-patterns.md` | 反模式池(历史教训,持续追加) | 全员 |
+| `templates/` | channel 骨架、开发/内容任务卡模板、Implementer / Reviewer 启动提示词模板 | 部署时用 |
 
 ## 新项目部署流程(Architect 侧执行)
 
-关键认知:**Implementer agent 读不到本 skill 目录**——它只读项目仓库和自己的启动提示词。所以部署 = 把协作基础设施**实例化进项目仓库**;本 skill 是母本 + 部署器。
+关键认知:**其他 agent 读不到本 skill 目录**——它们只读项目仓库和自己的启动提示词。所以部署 = 把协作基础设施**实例化进项目仓库**;本 skill 是母本 + 部署器。
 
-1. **定配置**(问 Owner 或按项目实情):信道文件路径(默认 `docs/collab/channel.md`)、分支命名约定、项目门禁命令表(protocol §8 坑位)、体量预算基线、注释/文案语言;
-2. **定工作区形态**:Owner 指定 A(共享本地工作区)或 B(分离工作区);Owner 未指定则部署后用**握手探测**(protocol §4:信道写入含随机标记的消息不 commit,对方读得到 → A,读不到 → 补 commit+push 走通 → B),结论记入信道存档;
-3. **实例化进仓库**:按 `templates/channel.md` 建信道文件;拷贝 `protocol.md`、`implementer.md`、`anti-patterns.md` 进项目(如 `docs/collab/`),**填掉全部【坑位】**(门禁命令表、路径、形态);`architect.md` 可拷可不拷(Architect 直接用 skill 母本,拷入则对 Implementer 透明,推荐拷);
-4. **给 Owner 出启动提示词**:按 `templates/implementer-bootstrap.md` 填空,交 Owner 配置给 Implementer agent——只指路径不复制内容;
-5. **写信道 #1 部署宣告**(模板内含示例),等 Implementer 回 #2 确认已读(顺带完成形态握手);
-6. 建 backlog(若无)→ 出第一张卡(`architect.md` §1)→ 协作开始。
+1. **定角色数**:问 Owner 有几个 agent。两个 → 双 agent 原形(不部署 Reviewer);三个 → 加 Reviewer,把角色分工与是否部署记入信道存档;
+2. **定配置**(问 Owner 或按项目实情):信道文件路径(默认 `docs/collab/channel.md`)、分支命名约定、项目门禁命令表(protocol §8 坑位)、体量预算基线、注释/文案语言;
+3. **定工作区形态**:Owner 指定 A(共享本地工作区)或 B(分离工作区);Owner 未指定则部署后用**握手探测**(protocol §4:信道写入含随机标记的消息不 commit,对方读得到 → A,读不到 → 补 commit+push 走通 → B),结论记入信道存档。**形态 A + 三方**时还要定 Reviewer 的工作区(A-共享 + 交接铁律 / A-独立审 worktree),门禁重的项目选后者;
+4. **实例化进仓库**:按 `templates/channel.md` 建信道文件;拷贝 `protocol.md`、`implementer.md`、`anti-patterns.md`(三方再加 `reviewer.md`)进项目(如 `docs/collab/`),**填掉全部【坑位】**(门禁命令表、路径、形态、角色部署);`architect.md` 可拷可不拷(推荐拷,对其他角色透明);
+5. **给 Owner 出启动提示词**:按 `templates/implementer-bootstrap.md`(三方再加 `templates/reviewer-bootstrap.md`)填空,交 Owner 配置给对应 agent——只指路径不复制内容;
+6. **写信道部署宣告**(模板内含 #1/#2 示例),等各方确认已读(顺带完成形态握手);
+7. 建 backlog(若无)→ 出第一张卡(`architect.md` §1)→ 协作开始。
 
-**若项目有两个 agent 都能当 Architect**:可在派出第一张实现卡之前插入一次交叉 review(protocol §2.1)。这个环节收益集中在前几轮、之后急剧转负,**部署时就要把"一轮止损 + 必审四类 + 四个越线信号"讲清楚**,不要等跑起来再收口——它没有自然终点,双方都会不自觉地加码。同时按 protocol §2.2 给 backlog 每张卡标验收强度,对抗档在出卡时点名,不留给验收时临场判断。
+**开工前交叉 review 的部署要点**(protocol §2.1,无论是两个 Architect 对等互审还是常驻 Reviewer):这个环节收益集中在前几轮、之后急剧转负,**部署时就要把"一轮止损 + 必审四类 + 不审清单 + 四个越线信号"讲清楚**,不要等跑起来再收口——它没有自然终点,各方都会不自觉地加码。同时按 protocol §2.2 给 backlog 每张卡标验收强度,对抗档在出卡时点名,不留给验收时临场判断。
+
+**三方部署额外要交代清楚的三件事**(不讲清楚必出事):
+
+1. **Reviewer 无契约修改权**——打回项必须指得到卡面某一行;指不到的是卡面问题,走 Architect 裁决。Implementer 有权拒绝无卡面依据的打回项;
+2. **裁决与卡面修订必须抄送 Reviewer**——否则她按旧卡面初审,成批误打回;
+3. **已读机制换挡**——三方下 `git add` 表达不了"谁读了",抄送方不 add 且必须用 `git diff HEAD` 读增量,真正的水位线是消息里的 `已读至:#M`(protocol §3.3)。
 
 ## 日常路由(已部署项目中)
 
-- 我是 Architect:出卡/派卡 → `architect.md` §1;收到信道消息 → §2 分流(L1 → §3 裁决;交付 → §4 验收五步);合入 → §5 收口序列。
-- 需要给 Implementer 指引时:指向**项目仓库内的实例文档**,不指向本 skill 路径(它读不到)。
+- 我是 Architect:出卡/派卡 → `architect.md` §1;收到信道消息 → §2 分流(L1 → §3 裁决;交付/初审放行 → §4 验收五步);合入 → §5 收口序列。
+- 我是 Reviewer:文档评审 → `reviewer.md` §1;卡面预审 → §2;交付初审 → §3(**先看卡面强度档**);出结论 → §4。
+- 需要给其他 agent 指引时:指向**项目仓库内的实例文档**,不指向本 skill 路径(它们读不到)。
 - 拿不准某规则 → `protocol.md`;疑似踩坑 → `anti-patterns.md` 先查有没有前车之鉴。
+- **有初审环节时,Architect 的验收五步不精简**——刻意保留的冗余:Reviewer 与 Implementer 可能同源,盲区相关。初审台账是交叉参照,不是免跑凭据。
 
 ## 经验回流
 
