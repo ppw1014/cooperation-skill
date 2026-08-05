@@ -194,6 +194,8 @@ backlog 取任务 → Architect 出任务卡
   - `git add` 语义收窄为**主收件人的已读回执**,只有 `→` 指向的那一方 add;
   - **抄送方不 add**,且读增量必须用 `git diff HEAD -- <信道文件>`(而非 `git diff`——后者看不到已被主收件人 staged 的消息);
   - 真正的已读水位线是元信息行里的 **`已读至:#M`**,每方发言时如实声明,不依赖 git staging 状态。
+- **提交时 `git commit` 也必须带 pathspec**——`git add <路径>` 精确暂存**还不够**:不带 pathspec 的 `git commit` 提交的是**整个 index**,而形态 A 下 index 里往往有**对方 add 的信道回执**(上面这条协议要求的动作),于是你的一次文档提交会把别人的已读状态连带提交进去。写成 `git commit <明确路径…>`,或提交前跑一次 `git diff --cached --stat` 确认 index 只含你要提交的文件。
+  - 误提交后的修复:`git reset --soft HEAD~1` → 对信道 `git restore --staged` → 重新提交。**信道内容不会丢**(它本就只追加),丢的是对方的 staging 已读标记——**这正是三方把权威水位线定为 `已读至:#M` 而非 staging 状态的另一个理由**。
 - 例外:收口合入时 Architect 可将信道记录一并 commit。
 
 ## 4. 工作区形态(A/B)与握手探测
