@@ -307,9 +307,35 @@ Reviewer 有放行/打回权,**没有契约修改权**。判据只有一条,机�
 | 类型安全 | 默认最严格模式;禁隐式 any 类(确需用 unknown 类 + 收窄) |
 | 错误处理 | 显式错误类型;跨进程/跨语言边界统一转可序列化错误,不 panic/unwrap |
 | 注释/文案 | 语言按项目定(默认简体中文);注释解释"为什么"而非"是什么" |
-| 提交 | Conventional Commits(feat/fix/docs/refactor/test/chore + 描述);**commit 描述尾注执行者身份**(如 `(Claude xxx)`)——双 agent 同仓提交,审计必需 |
+| 提交 | Conventional Commits(feat/fix/docs/refactor/test/chore + 描述);**尾注执行者身份**,格式见 §8.1——多 agent 同仓提交,审计必需 |
 | 分支 | `task/<ID>-短描述`;单卡一分支;批量模式:统一分支、按卡独立 commit |
 | 依赖 | 新增依赖必须卡面明确批准;出卡人枚举官方 companion 闭包(types、插件、CLI、配套包)**并核查各新增包的 peerDependencies**;交付报告列实际新增依赖全表供逐个核对 |
 | 跨边界类型 | 单一类型源 + 代码生成;生成物可由固定命令重现;生成物 lint 豁免必须**按具体文件路径显式列名**(禁通配目录、禁行内豁免注释) |
 | 平台 | 涉及路径/进程/文件的代码双平台考虑(路径分隔、进程组差异是重灾区) |
 | 门禁命令表 | 【部署时填写:类型检查 / lint / 测试 / 格式化 / 生成物重现校验的完整命令】<br>示例(项目 A):`pnpm typecheck && pnpm lint && pnpm test`;`cargo test && cargo clippy -- -D warnings && cargo fmt --check`;bindings 重生成后 `shasum -a 256` 比对零漂移 |
+
+### 8.1 提交署名(谁提交谁署自己那条)
+
+多个 agent 往同一个仓库提交,`git log` 的 author 字段通常是同一个人类账号——**署名是唯一能区分"这段代码出自谁"的凭据**,不是装饰。等到需要追责或复盘"这个决定当时是谁做的"时,它是仅有的线索。
+
+格式:commit 消息末尾加 git trailer,**一行一条**:
+
+```
+Co-Authored-By: <角色>-<模型标识>
+```
+
+角色名与模型标识在部署时一并确定并记入信道存档(与 §1.2 的模型来源同一件事),例如:
+
+```
+Co-Authored-By: Architect-Opus-5
+Co-Authored-By: Implementer-Sol
+Co-Authored-By: Reviewer-Sol
+```
+
+**规则**:
+
+- **谁提交谁署自己那条,不代签他人**——代签让审计链失真,而审计链失真的时刻,恰好是你最需要它的时刻;
+- 一次提交若确实是多方共同产出(如 Architect 在打回后直接改了 Implementer 的分支再提交),**由提交者列全参与方**,并在提交描述里说清各自改了什么——列全不等于代签,前提是这次提交真的包含对方的产出;
+- 收口 merge commit 由 Architect 署自己一条即可;被合入的各 commit 里已有各自署名,不必重复;
+- **代行期**(§1.1)照常署代行者本人的角色,不署被代行者——事后要能一眼看出哪些裁决和提交出自代行期;
+- 需要 GitHub 识别为 co-author 时补邮箱(`Co-Authored-By: Name <email>`);纯内部审计可省。
