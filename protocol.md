@@ -336,13 +336,15 @@ Reviewer 有放行/打回权,**没有契约修改权**。判据只有一条,机�
 Co-Authored-By: <角色>-<模型标识>
 ```
 
-角色名与模型标识在部署时一并确定并记入信道存档(与 §1.2 的模型来源同一件事),例如:
+角色名与模型标识在部署时一并确定并记入信道存档(与 §1.2 的模型来源同一件事)。模型标识用该 agent 在本项目里的**固定代号**,不用版本号——版本会变,而署名是历史记录,变了就对不上从前的提交。形如:
 
 ```
-Co-Authored-By: Architect-Opus-5
-Co-Authored-By: Implementer-Sol
-Co-Authored-By: Reviewer-Sol
+Co-Authored-By: Architect-<模型代号>
+Co-Authored-By: Implementer-<模型代号>
+Co-Authored-By: Reviewer-<模型代号>
 ```
+
+Implementer 与 Reviewer 同源时**代号相同、角色前缀不同**,这正是要区分的两件事:同一个模型在两个角色下的产出,责任归属不同。
 
 **规则**:
 
