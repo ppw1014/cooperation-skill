@@ -1,11 +1,13 @@
 ---
 name: cooperation-skill
-description: 多 agent 协作框架(Architect 出卡/裁决/验收/收口 + Implementer 按卡实现 + 可选 Reviewer 交叉评审)。用于:在新项目部署 agent 协作基础设施;日常出任务卡、派卡、处理信道消息、L1/L2/L3 分级裁决、交付初审、验收合入。源自项目 A 的协作规范 v1.5 及多项目实战演化。
+description: 多 agent 协作框架(Architect 出卡/裁决/验收/收口 + Implementer 按卡实现 + 可选 Reviewer 交叉评审)。用于部署协作协议、派卡、处理信道与实施发现、验收合入;支持共享目录、独立 clone、本地并行 worktree 及 Multica 托管任务的每轮起点保护。
 ---
 
 # 多 agent 协作框架
 
-一句话:**Architect(出卡/定契约/裁决/终审/merge)+ Implementer(按卡实现/自检/上报发现)+ Reviewer(可选,开工前评审 + 交付初审)+ Owner(人类,决策/验收/触发)**,通过仓库内只追加信道异步协作;任务卡自包含 + 硬边界 + 机器可验收;实施发现分级反馈,裁决前一律按契约。
+一句话:**Architect(出卡/定契约/裁决/终审/merge)+ Implementer(按卡实现/自检/上报发现)+ Reviewer(可选,开工前评审 + 交付初审)+ Owner(人类,决策/验收/触发)**,通过仓库内消息异步协作;任务卡自包含 + 硬边界 + 机器可验收;实施发现分级反馈,裁决前一律按契约。
+
+**每轮先确认工作区,再执行角色手册。** 本地并行 worktree 为形态 C;Multica 的目录、分支和本轮起点由宿主分配。遇到 C 或 Multica,先读 [本地 worktree 工作流](references/local-worktrees.md),并在任何 Git 写操作前执行其中的 guard `start`。沿起点追加提交,不 amend 宿主 checkpoint、不按旧模板重建分支。已部署项目也要走这一步。
 
 **Reviewer 是可选角色**——两个 agent 的项目不部署它,其职责全部回落 Architect,框架退化为双 agent 原形。两个 agent 若异源且都具 Architect 能力,还有第三种选择:**对等形态**(双 Architect 互审 + 互为代行者,protocol §1.2)。
 
@@ -13,7 +15,9 @@ description: 多 agent 协作框架(Architect 出卡/裁决/验收/收口 + Impl
 
 | 文件 | 内容 | 谁读 |
 | --- | --- | --- |
-| `protocol.md` | 共同协议:角色分工、**代行与交接(限额/中断)**、**模型来源与对等形态**、生命周期、**开工前交叉 review(一轮止损)**、**验收强度分档(含取证档)**、信道规则(含三方寻址与已读)、工作区形态 A/B 与握手探测、L1/L2/L3 分级、绿区/红区/**评审边界**、体量披露制、工程规约 | 全员必读 |
+| `protocol.md` | 共同协议:角色、代行、生命周期、交叉 review、验收强度、信道、形态 A/B/C 与宿主约束、实施发现、决策边界、工程规约 | 全员必读 |
+| `references/local-worktrees.md` | C 模式与 Multica:每轮起点、消息收发、确定 SHA 评审、串行集成、失败恢复、旧部署迁移 | C / 托管任务必读 |
+| `scripts/worktree_guard.py` | Python 3 标准库工具:只读探测、一次性记录起点、交付前检查 | C / 托管任务开工与交付时 |
 | `architect.md` | 出卡门禁、派卡、信道处理、裁决流程、验收五步、收口序列 | Architect |
 | `implementer.md` | 领卡、实施纪律、自检清单、交付报告、打回处理 | Implementer |
 | `reviewer.md` | 文档评审、卡面预审、交付初审(按强度分档)、打回判据、漏检回流 | Reviewer(三方部署时) |
@@ -25,11 +29,11 @@ description: 多 agent 协作框架(Architect 出卡/裁决/验收/收口 + Impl
 关键认知:**其他 agent 读不到本 skill 目录**——它们只读项目仓库和自己的启动提示词。所以部署 = 把协作基础设施**实例化进项目仓库**;本 skill 是母本 + 部署器。
 
 1. **定角色数与模型来源**:问 Owner 有几个 agent、**分别是什么模型**。两个 → 双 agent 原形(不部署 Reviewer);三个 → 加 Reviewer。角色分工、是否部署、**三方各自的模型来源**一并记入信道存档——同源与否直接决定 Reviewer 开工前评审的预期收益(protocol §1.2)。两个 agent 若**异源且都具 Architect 能力**,优先考虑**对等形态**(protocol §1.2)而非主从:它同时覆盖跨模型正交与限额代行,通常强于再加一个同源第三方;
-2. **定配置**(问 Owner 或按项目实情):信道文件路径(默认 `docs/collab/channel.md`)、分支命名约定、项目门禁命令表(protocol §8 坑位)、体量预算基线、注释/文案语言;
-3. **定工作区形态**:Owner 指定 A(共享本地工作区)或 B(分离工作区);Owner 未指定则部署后用**握手探测**(protocol §4:信道写入含随机标记的消息不 commit,对方读得到 → A,读不到 → 补 commit+push 走通 → B),结论记入信道存档。**形态 A + 三方**时还要定 Reviewer 的工作区(A-共享 + 交接铁律 / A-独立审 worktree),门禁重的项目选后者;
-4. **实例化进仓库**:按 `templates/channel.md` 建信道文件;拷贝 `protocol.md`、`implementer.md`、`anti-patterns.md`(三方再加 `reviewer.md`)进项目(如 `docs/collab/`),**填掉全部【坑位】**(门禁命令表、路径、形态、角色部署);`architect.md` 可拷可不拷(推荐拷,对其他角色透明);
+2. **定配置**(按已授权上下文与项目实情):信道位置、分支来源、项目门禁命令表(protocol §8)、体量预算基线、注释/文案语言;C 模式还需登记发送分支、集成人、主干更新入口;
+3. **定工作区形态与管理者**:按 protocol §4 的只读拓扑探测区分 A(共享目录)、B(独立 clone)、C(本地并行 worktree),并记录 manual / multica。不能把「看不到未提交消息」直接判为 B。Reviewer 的独立 worktree 同样按 C 收发消息;
+4. **实例化进仓库**:A/B 使用 `templates/channel.md`;C 使用 `templates/channel-worktrees.md` 建部署配置,消息使用 `templates/message.md`。拷贝 `protocol.md`、`implementer.md`、`anti-patterns.md`(三方再加 `reviewer.md`)进项目(如 `docs/collab/`),填掉项目配置;推荐同时拷贝 `architect.md`。C / 托管部署还要拷贝 `references/local-worktrees.md`、`scripts/worktree_guard.py` 及其引用的两个模板,保持相对目录结构,并在项目配置明确实际脚本路径;
 5. **给 Owner 出启动提示词**:按 `templates/implementer-bootstrap.md`(三方再加 `templates/reviewer-bootstrap.md`)填空,交 Owner 配置给对应 agent——只指路径不复制内容;
-6. **写信道部署宣告**(模板内含 #1/#2 示例),等各方确认已读(顺带完成形态握手);
+6. **写部署宣告**,按已选通路送达并收显式确认,完成消息通路验证;
 7. 建 backlog(若无)→ 出第一张卡(`architect.md` §1)→ 协作开始。
 
 **开工前交叉 review 的部署要点**(protocol §2.1,无论是两个 Architect 对等互审还是常驻 Reviewer):这个环节收益集中在前几轮、之后急剧转负,**部署时就要把"一轮止损 + 必审四类 + 不审清单 + 四个越线信号"讲清楚**,不要等跑起来再收口——它没有自然终点,各方都会不自觉地加码。同时按 protocol §2.2 给 backlog 每张卡标验收强度,对抗档在出卡时点名,不留给验收时临场判断。
@@ -40,10 +44,12 @@ description: 多 agent 协作框架(Architect 出卡/裁决/验收/收口 + Impl
 
 1. **Reviewer 无契约修改权**——打回项必须指得到卡面某一行;指不到的是卡面问题,走 Architect 裁决。Implementer 有权拒绝无卡面依据的打回项;
 2. **裁决与卡面修订必须抄送 Reviewer**——否则她按旧卡面初审,成批误打回;
-3. **已读机制换挡**——三方下 `git add` 表达不了"谁读了",抄送方不 add 且必须用 `git diff HEAD` 读增量,真正的水位线是消息里的 `已读至:#M`(protocol §3.3)。
+3. **已读机制换挡**——只有 A 的共享 index 可作 staging 回执;三方 A 用消息里的 `已读至:#M`,B 也显式确认;C 用唯一消息 ID 与 `ack`,不套用全局编号或 staging 回执(protocol §3)。
 
 ## 日常路由(已部署项目中)
 
+- C / Multica / `local_directory worktree` 报错:先读 `references/local-worktrees.md`;每轮 `start`,交付前 `check`,失败保留现场。不能用新 `run_id` 掩盖原运行的起点丢失;
+- 旧项目切换本地并行 worktree:按参考文档的「旧部署迁移」更新实例与启动提示词,不能只改母本;
 - 我是 Architect:出卡/派卡 → `architect.md` §1;收到信道消息 → §2 分流(L1 → §3 裁决;交付/初审放行 → §4 验收五步);合入 → §5 收口序列。
 - 我是 Reviewer:文档评审 → `reviewer.md` §1;卡面预审 → §2;交付初审 → §3(**先看卡面强度档**);出结论 → §4。
 - **接手代行 / 交回**:→ `protocol.md` §1.1——代行者权力边界(裁决算数、收口不算)、待终审队列与链式基线、交接对账消息;**半途卡不换手**。

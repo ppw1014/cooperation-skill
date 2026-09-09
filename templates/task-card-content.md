@@ -2,6 +2,8 @@
 
 - 状态:待领取 ｜ 产出:<Implementer 身份> ｜ 审校:<Architect 身份> ｜ 定稿:Owner 抽查
 - 对应 backlog:<位置>
+- 工作区:<部署配置路径;C / 托管时沿用已分配分支,每轮记录 run_start,不 amend 起点>
+- 基线与交付:<task_base;交付附产物 SHA、消息 ID/载体 SHA、最终 guard 检查结果>
 
 ## 输入
 

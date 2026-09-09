@@ -13,7 +13,8 @@
 | 实现方发现了更好的做法,**直接就改了** | 铁律:裁决之前一律按契约实现。**发现 ≠ 授权**,发现的价值在进入裁决流程 |
 | 出卡方写了个**不存在的数据源 / 没法验的验收标准**,实现期才炸 | 出卡门禁 13 条 + 开工前交叉 review;定性时先查是不是出卡侧的锅,不冤枉实现者 |
 | review 停不下来,**一张小卡审了 7 轮**,体量做到预算 2.3 倍 | 一轮止损 + 必审四类 + 不审清单 + 四个越线信号;验收强度由"面对谁"决定,不由"多重要"决定 |
-| 两个 agent 共享工作区,一次 `git checkout` **抹掉对方未提交的活** | 工作区形态 A/B 分别定纪律;形态 A 下切分支/merge 前必须确认对方无现场 |
+| 两个 agent 共享工作区,一次 `git checkout` **抹掉对方未提交的活** | 按 A/B/C 实际拓扑定纪律;A 切分支前确认现场,C 每个运行使用独立分支 |
+| Multica 拒绝记录交付分支,提示起始提交不再可达 | 每轮冻结 run_start,沿宿主分配追加提交;交付前检查身份与祖先关系 |
 
 ## 角色
 
@@ -37,7 +38,7 @@ Reviewer(可选)  开工前评审文档与高风险卡面;交付后初审实现
 
 | 机制 | 一句话 |
 | --- | --- |
-| **信道** | 仓库内只追加的 markdown 文件;编号严格递增;`git add` = 已读回执。三方部署时换成消息内 `已读至:#N` 水位线(staging 是全局状态,表达不了"谁读了") |
+| **信道** | A/B 使用串行单文件信道;只有 A 的共享 index 可作 staging 回执。C 使用独立消息文件、唯一 ID 和显式 ack,按确定 SHA 读取 |
 | **L1 / L2 / L3** | L1 阻塞立即停工上报;L2 缺陷继续按契约做、随交付报告结构化提出;L3 建议**裁决前不得实现** |
 | **绿区 / 红区** | 低风险"必然配套"决策下放实现侧(四条件全满足 + 披露审计);新增运行时依赖、公共契约变更、安全边界一律停工 |
 | **一轮止损** | 开工前 review 一次性给全问题,不往返。出现"本轮问题多数由上一轮修订产生"立即收口 |
@@ -57,6 +58,8 @@ Reviewer(可选)  开工前评审文档与高风险卡面;交付后初审实现
 | [`reviewer.md`](reviewer.md) | 文档评审、卡面预审、交付初审(按强度分档)、打回判据、漏检回流 | Reviewer |
 | [`anti-patterns.md`](anti-patterns.md) | **反模式池** —— 本仓最有价值的部分,每条带源案例 | 全员 |
 | [`templates/`](templates/) | 信道骨架、开发/内容任务卡模板、Implementer / Reviewer 启动提示词 | 部署时用 |
+| [`references/local-worktrees.md`](references/local-worktrees.md) | 本地并行 worktree、Multica 起点保护、收发消息、评审与收口、迁移 | C / 托管运行 |
+| [`scripts/worktree_guard.py`](scripts/worktree_guard.py) | inspect / start / check,Python 3 标准库,无需安装依赖 | 开工与交付时 |
 
 > `README.md`(本文件)面向**人类**,帮你判断要不要用;`SKILL.md` 面向 **agent**,是它的操作入口。两者刻意不重复——单一事实源是这套框架自己的规矩之一。
 
@@ -80,22 +83,27 @@ ln -s ~/Projects/cooperation-skill ~/.codex/skills/cooperation-skill
 
 1. **定角色数** —— 两个 agent 走双角色原形,三个则加 Reviewer;
 2. **定配置** —— 信道路径、分支约定、**项目门禁命令表**(protocol §8 的坑位)、体量预算基线;
-3. **定工作区形态** —— A 还是 B(见下),形态决定 git 纪律;
-4. **实例化** —— 把 `protocol.md` / `implementer.md` / `anti-patterns.md`(三方再加 `reviewer.md`)拷进项目 `docs/collab/`,**填掉全部【坑位】**;
+3. **定工作区形态与管理者** —— A/B/C 和 manual/multica 分开确定,以实际路径与宿主分配为证据;
+4. **实例化** —— 将协议、角色手册与反模式部署到项目;C 额外部署参考文档、guard、独立消息模板与工作区配置,保留相对链接并填入项目实际路径;
 5. **出启动提示词** —— 按 `templates/*-bootstrap.md` 填空交给 Owner,只指路径不复制内容;
 6. **写信道首条部署宣告** → 建 backlog → 出第一张卡。
 
 完整步骤见 [`SKILL.md`](SKILL.md)。
 
-## 工作区形态 A / B
+## 工作区形态 A / B / C
 
-| | 形态 A:共享本地工作区 | 形态 B:分离工作区 |
-| --- | --- | --- |
-| 可见性 | 未提交变更互相可见,写入即送达 | 一切经 commit + push 才可见 |
-| 第一铁律 | 切分支 / merge 前**必须确认对方无未提交现场** | 远端分支是唯一事实,本地状态不作数 |
-| 信道 | 消息写入文件即送达 | 消息必须 push 后才算送达,读前先 pull |
+| | A:共享目录 | B:独立 clone | C:本地并行 worktree |
+| --- | --- | --- | --- |
+| Git 状态 | 工作文件、index、HEAD 共享 | 对象库与工作区各自独立 | 对象库/普通分支引用共享,工作文件/index/HEAD 独立 |
+| 可见性 | 未提交消息可见 | commit + push 后按远端 SHA 读 | commit 后按本地 SHA 读,无需 push |
+| 消息 | 串行追加,共享 index 回执 | 串行追加,显式已读 | 独立文件、唯一 ID、显式 ack |
+| 集成 | 先确认共享现场 | 核对远端交付 SHA | 指定 Architect 串行合入确定 SHA |
 
-形态由 Owner 指定;**未指定时两个 agent 可以自己探测**——Architect 在信道写一条带随机标记的消息但**不 commit**,对方读得到就是 A,读不到则补 push 走通就是 B(补推过程本身完成了 B 形态的通路验证)。
+探测比较同一机器上各方的 toplevel/git-dir/common-dir,不能把“读不到未提交消息”直接判成 B。Multica 托管任务还必须保留平台分配的分支和每轮起点;即使只改提交说明,amend 起点也会导致交付提交不再包含它。
+
+每轮第一条 Git 写操作前执行 `python3 scripts/worktree_guard.py start --run-id <本轮唯一ID>`,交付消息提交后执行 `check --run-id <同一ID>`。记录按 worktree/运行隔离,重复 start 不覆盖;检查失败保留现场。详细配置、路径与边界见 [工作流](references/local-worktrees.md)。
+
+本地验证:`python3 -B -m unittest discover -s tests -v`。测试使用自动清理的临时 Git 仓库;通过不代表已验证 Multica 的实际记录与回收流程。
 
 ## 出处与成色
 
