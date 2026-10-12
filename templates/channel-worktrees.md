@@ -8,7 +8,7 @@
 - guard 路径:【项目内实际路径,如 docs/collab/scripts/worktree_guard.py】
 - 消息目录:【docs/collab/messages】;消息模板:【templates/message.md】
 - 历史信道:【docs/collab/channel.md / 无】
-- 唯一集成人:【角色 + 当前任务身份】
+- 唯一集成人:【三方为 Reviewer,双方为 Architect;角色 + 当前任务身份】
 - 集成工作区/分支:【manual 时指定;multica 时使用集成人本轮实际分配】
 - 主干目标与更新入口:【目标分支 + 实际由谁/通过何入口更新,不得假定平台自动合入 main】
 - 宿主记录结果来源:【平台任务结果/实际可用查询入口】

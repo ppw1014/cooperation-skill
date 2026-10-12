@@ -5,7 +5,7 @@ to: "<one-recipient>"
 cc: []
 in_reply_to: []
 ack: []
-kind: "<dispatch|question|decision|delivery|review|closeout>"
+kind: "<dispatch|question|decision|delivery|review|acceptance|closeout>"
 task: "<task-id>"
 run_id: "<current-run-id>"
 branch: "<actual-branch-or-detached>"

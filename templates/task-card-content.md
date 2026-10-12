@@ -1,6 +1,6 @@
 # 内容任务 <ID>:<主题> 全套内容
 
-- 状态:待领取 ｜ 产出:<Implementer 身份> ｜ 审校:<Architect 身份> ｜ 定稿:Owner 抽查
+- 状态:待领取 ｜ 产出:<Implementer 身份> ｜ 审校:<Architect 身份> ｜ 验收/合入:<Reviewer 身份;未部署写 Architect> ｜ 定稿:Owner 抽查
 - 对应 backlog:<位置>
 - 工作区:<部署配置路径;C / 托管时沿用已分配分支,每轮记录 run_start,不 amend 起点>
 - 基线与交付:<task_base;交付附产物 SHA、消息 ID/载体 SHA、最终 guard 检查结果>
@@ -25,4 +25,6 @@
 
 ## 审校流程
 
-产出 → Architect 逐条审校(知识边界/难度曲线/严谨性/文风)→ 需要时批注返工 → Owner 抽查定稿。
+产出 → Architect 审校(知识边界/难度曲线/严谨性/文风)→ 需要时批注返工 → 〔Reviewer 验收:校验工具与可执行内容实跑〕→ Owner 抽查定稿 → 合入。
+
+写法、例题选取、讲解顺序由产出方自主决定;审校只就上面的验收标准打回。
