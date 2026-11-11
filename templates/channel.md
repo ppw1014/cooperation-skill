@@ -16,10 +16,11 @@
 > - 本文件永久豁免一切任务卡"涉及范围"限制;
 > - 需要 Owner 决策的事项不走信道。
 >
-> 角色部署:【Architect =? ｜ Implementer =? ｜ Reviewer = 已部署/未部署(未部署时验收与合入由 Architect 承担)】
-> 唯一集成人:【三方为 Reviewer,双方为 Architect】
+> 角色部署与模型来源:【Architect =? ｜ Implementer =?(档位:标准/保守)｜ Coordinator = ?/未部署 ｜ Reviewer = ?/未部署】——未部署的角色由 Architect 兼
+> 集成人:卡级【Coordinator;未部署为 Reviewer】｜ 主干【Reviewer;未部署为 Architect】｜ 里程碑集成分支命名【milestone/<里程碑>】
+> 记账位置:backlog【路径】｜ 挂账【路径】｜ 待 Owner 裁决清单【路径】｜ 交付报告【docs/collab/reports/】
 > 工作区形态:【A 共享本地工作区 / B 独立 clone——按 protocol §4 拓扑探测后填写;若为 C 改用对应模板】;管理者:【manual / multica】
-> 【形态 A + 部署 Reviewer 时补填】Reviewer 工作区:【A-共享(交接铁律)/ A-独立审(worktree 或独立 clone)】
+> 【形态 A 时补填】集成与验收用的工作区:Coordinator【A-共享 / A-独立】｜ Reviewer【A-共享 / A-独立】(protocol §4,推荐 A-独立)
 
 ---
 
@@ -30,19 +31,19 @@
 协作基础设施已就位:
 
 - 共同协议:【路径,如 docs/collab/protocol.md】
-- 你的手册:【路径,如 docs/collab/implementer.md】
+- 你的手册:【路径,如 docs/collab/implementer.md】;你的档位:【标准 / 保守】
 - 反模式池:【路径】
 - 任务池 backlog:【路径】
 - 工作区形态:【A / B / 待只读拓扑探测;确认 C 时切换模板】
 
 请用下一个可用编号确认已读,并给出 protocol §4 的只读拓扑探测结果;不能仅凭读不到未提交消息判为 B。
 
-## #2 ｜ Architect → Reviewer ｜ 【日期】 ｜ 部署宣告(三方部署时使用,否则删除)
+## #2 ｜ Architect → Reviewer ｜ 【日期】 ｜ 部署宣告(部署 Reviewer 时使用,否则删除;Coordinator 同理另发一条,指向 coordinator.md)
 
 > 抄送:Implementer ｜ 已读至:#0 ｜ 下一步:@Reviewer
 
-- 共同协议:【路径】,重点 §2 生命周期、§2.1 审核与验收的止损、§2.2 验收强度分档、§6 打回与退回的依据
+- 共同协议:【路径】,重点 §2 生命周期、§2.1 审核与验收的止损、§2.2 验收强度分档、§6.1 三区、§6.3 退回与打回的依据
 - 你的手册:【路径,如 docs/collab/reviewer.md】
 - 反模式池:【路径】
 
-请回复确认已读,并说明你的工作区安排(A-共享 / A-独立审 / 形态 B)。提醒:开发环节你不介入,我审核通过后移交你验收;你有验收通过/退回权与 merge 权,**无契约修改权**——退回项须有依据与复现,卡面本身的问题报我定性。
+请回复确认已读,并说明你的工作区安排(A-共享 / A-独立 / 形态 B)。提醒:实现期你不介入;里程碑的卡全部集成后由你把整体跑起来验收,台账与问题清单一次给全交我归类;对抗档与取证档的卡在集成前由你逐卡验收;验收过的集成分支由你合入主干。你**无契约修改权**——问题须有依据与复现,卡面本身的问题标明后交我。

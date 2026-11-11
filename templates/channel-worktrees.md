@@ -8,7 +8,10 @@
 - guard 路径:【项目内实际路径,如 docs/collab/scripts/worktree_guard.py】
 - 消息目录:【docs/collab/messages】;消息模板:【templates/message.md】
 - 历史信道:【docs/collab/channel.md / 无】
-- 唯一集成人:【三方为 Reviewer,双方为 Architect;角色 + 当前任务身份】
+- 角色部署与模型来源:【Architect / Implementer(档位:标准/保守)/ Coordinator(可选)/ Reviewer(可选);未部署的由 Architect 兼】
+- 集成人:卡级【Coordinator;未部署为 Reviewer】、主干【Reviewer;未部署为 Architect】;各写角色 + 当前任务身份
+- 里程碑集成分支:【命名与当前分支,如 milestone/<里程碑>】
+- 记账位置:【backlog / 挂账 / 待 Owner 裁决清单 / 交付报告目录】
 - 集成工作区/分支:【manual 时指定;multica 时使用集成人本轮实际分配】
 - 主干目标与更新入口:【目标分支 + 实际由谁/通过何入口更新,不得假定平台自动合入 main】
 - 宿主记录结果来源:【平台任务结果/实际可用查询入口】
