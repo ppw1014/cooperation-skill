@@ -16,11 +16,11 @@
 > - 本文件永久豁免一切任务卡"涉及范围"限制;
 > - 需要 Owner 决策的事项不走信道。
 >
-> 角色部署与模型来源:【Architect =? ｜ Implementer =?(档位:标准/保守)｜ Coordinator = ?/未部署 ｜ Reviewer = ?/未部署】——未部署的角色由 Architect 兼
-> 集成人:卡级【Coordinator;未部署为 Reviewer】｜ 主干【Reviewer;未部署为 Architect】｜ 里程碑集成分支命名【milestone/<里程碑>】
+> 角色部署与模型来源:【Architect =? ｜ Implementer =?(档位:标准/保守)｜ Conductor = ?/未部署 ｜ Reviewer = ?/未部署】——未部署的角色由 Architect 兼
+> 集成人:卡级【Conductor;未部署为 Reviewer】｜ 主干【Reviewer;未部署为 Architect】｜ 里程碑集成分支命名【milestone/<里程碑>】
 > 记账位置:backlog【路径】｜ 挂账【路径】｜ 待 Owner 裁决清单【路径】｜ 交付报告【docs/collab/reports/】
 > 工作区形态:【A 共享本地工作区 / B 独立 clone——按 protocol §4 拓扑探测后填写;若为 C 改用对应模板】;管理者:【manual / multica】
-> 【形态 A 时补填】集成与验收用的工作区:Coordinator【A-共享 / A-独立】｜ Reviewer【A-共享 / A-独立】(protocol §4,推荐 A-独立)
+> 【形态 A 时补填】集成与验收用的工作区:Conductor【A-共享 / A-独立】｜ Reviewer【A-共享 / A-独立】(protocol §4,推荐 A-独立)
 
 ---
 
@@ -38,7 +38,7 @@
 
 请用下一个可用编号确认已读,并给出 protocol §4 的只读拓扑探测结果;不能仅凭读不到未提交消息判为 B。
 
-## #2 ｜ Architect → Reviewer ｜ 【日期】 ｜ 部署宣告(部署 Reviewer 时使用,否则删除;Coordinator 同理另发一条,指向 coordinator.md)
+## #2 ｜ Architect → Reviewer ｜ 【日期】 ｜ 部署宣告(部署 Reviewer 时使用,否则删除;Conductor 同理另发一条,指向 conductor.md)
 
 > 抄送:Implementer ｜ 已读至:#0 ｜ 下一步:@Reviewer
 

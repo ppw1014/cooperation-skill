@@ -43,7 +43,7 @@ python3 scripts/worktree_guard.py start --run-id "$collab_run_id" --task-base <t
 
 **托管运行默认只追加。** 不为美化 message/尾注 amend checkpoint;不对包含起点的区间做 rebase/squash;不把分支 reset 到起点之外。也不能通过 `branch -f`、`update-ref`、另一个工作区或强制 checkout 绕过这些约束。检查证明的是提交可达性,不替代实现范围、文件内容与测试验收。
 
-派卡消息可指定业务基线与依赖 SHA,不能用预设分支名覆盖宿主已经分配的分支。集成分两级(protocol §4):卡级集成人默认 Coordinator,把过了门禁的卡合入里程碑集成分支;主干集成人默认 Reviewer,把验收过的集成分支合入主干。多个同角色运行并行时,每个分支仍只有一个集成人,“角色相同”不代表可同时改同一分支。
+派卡消息可指定业务基线与依赖 SHA,不能用预设分支名覆盖宿主已经分配的分支。集成分两级(protocol §4):卡级集成人默认 Conductor,把过了门禁的卡合入里程碑集成分支;主干集成人默认 Reviewer,把验收过的集成分支合入主干。多个同角色运行并行时,每个分支仍只有一个集成人,“角色相同”不代表可同时改同一分支。
 
 ## 消息收发
 

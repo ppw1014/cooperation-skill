@@ -1,7 +1,7 @@
 # 内容任务 <ID>:<主题> 全套内容
 
 - 里程碑:<位置> ｜ 前置卡:<ID 列表;无则写"无">
-- 产出:Implementer ｜ 卡级门禁:Coordinator ｜ 里程碑验收:Reviewer ｜ 定稿:Owner 抽查
+- 产出:Implementer ｜ 卡级门禁:Conductor ｜ 里程碑验收:Reviewer ｜ 定稿:Owner 抽查
 
 <!-- 运行信息(分支、task_base、运行 ID)由派卡消息给出,不写在卡面。 -->
 
