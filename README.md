@@ -89,7 +89,7 @@ Reviewer(可选)      里程碑末把整体实际跑起来验收;对抗档/取�
 **作为 Claude Code / Codex CLI 的 skill:**
 
 ```bash
-git clone https://github.com/Winnie1014/cooperation-skill.git ~/Projects/cooperation-skill
+git clone https://github.com/ppw1014/cooperation-skill.git ~/Projects/cooperation-skill
 ln -s ~/Projects/cooperation-skill ~/.claude/skills/cooperation-skill
 ln -s ~/Projects/cooperation-skill ~/.codex/skills/cooperation-skill
 ```
