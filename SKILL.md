@@ -18,12 +18,13 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 
 **Conductor 与 Reviewer 都是可选角色**:未部署 Conductor 时派卡记账归 Architect、卡级门禁归 Reviewer;未部署 Reviewer 时验收与主干合入归 Architect;都没有就是双 agent 原形(protocol §1)。
 
-## 四个要先讲清楚的设计
+## 五个要先讲清楚的设计
 
 1. **内容链路与控制链路分开**(protocol §1):设计 → 卡面 → 实现 → 验收这条链上不放转述者。Conductor 不做内容决定——派卡、记账、对着封闭清单过门禁,结论都不靠判断;卡面永远出自 Architect。它是 Owner 的主要对话入口,把 Owner 的需求派给 Architect 时附原话——换说法可以,换实质不行。能读懂代码的 Conductor 可以开初审档,对每张交付提不阻塞的改进意见和具体肯定:**放开"说",不放开"判"**;
-2. **检查分三层,各管一件事**(protocol §2):卡级门禁每张卡都做,只查能机械判定的;里程碑验收把整体实际跑起来;收官评估看结构并给每个问题归类。代价是常规卡的实测推迟到里程碑末,所以**里程碑要切小**,对抗档与取证档的卡仍逐卡验收;
+2. **检查分三层,各管一件事**(protocol §2):卡级门禁每张卡都做,只查能机械判定的;里程碑验收把整体实际跑起来;收官评估看结构并给每个问题归类。代价是常规卡的实测推迟到里程碑末,所以**里程碑要切小**。验收强度看两个问题:谁会攻击它(常规 / 对抗)、写错了会造成哪类后果(钱、越权、对外发出等叠加高后果);对抗档、取证档、高后果的卡仍逐卡验收;
 3. **决策按回退成本分层**(protocol §6):回退只动本卡代码 → Implementer 直接做;回退封在本卡内 → 提案并继续;会外溢或不可逆 → 停下等裁决;产品方向、主观体验、已批准的契约、花钱 → Owner。**有客观依据且修法清楚的问题,任何一层都不往上交**;
-4. **规则按档位取用**(protocol §1.3):正文按强模型写。Implementer 是较弱模型时登记为保守档,叠加 `profiles/guarded.md`——黄区并入红区、Architect 写全卡面、逐卡审核。Conductor 分基础档(只跑清单)与初审档(加逐卡初审与跨卡观察),按模型能力登记。
+4. **规则按档位取用**(protocol §1.3):正文按强模型写。Implementer 是较弱模型时登记为保守档,叠加 `profiles/guarded.md`——黄区并入红区、Architect 写全卡面、逐卡审核。Conductor 分基础档(只跑清单)与初审档(加逐卡初审与跨卡观察),按模型能力登记;
+5. **教训先变检查,再写文字**(protocol §7.3):被纠正一次、退回一条,先问能不能写成守卫测试或脚本并入门禁,其次改结构让错的写不出来,都不行才写文字规则;有检查守着的文字缩成一句。手册只写做什么、不做什么,源案例放 `anti-patterns.md` 按需查。大决策在设计定稿前另由异源 agent 盲出一份独立方案(protocol §2.4)。
 
 ## 文件地图
 
@@ -33,11 +34,11 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 | `architect.md` | 批量出卡(薄卡)、出卡自查、被唤起时的裁决与按需审核、退回定性、收官评估与归类、写交付报告 | Architect |
 | `conductor.md` | 与 Owner 对话和向各角色派工、派卡、卡级门禁与集成、初审(初审档)、跟踪分流、三本账、里程碑收口与报告汇编 | Conductor;未部署时门禁归 Reviewer、其余归 Architect |
 | `implementer.md` | 领卡、细化完成判据、三区内的实施纪律、三节交付报告、退回处理 | Implementer |
-| `reviewer.md` | 里程碑验收、对抗档/取证档逐卡验收、台账与问题清单、合入主干、漏检回流 | Reviewer;未部署时由 Architect 执行 |
+| `reviewer.md` | 里程碑验收、对抗档/取证档/高后果逐卡验收、台账与问题清单、独立方案、合入主干、漏检回流 | Reviewer;未部署时由 Architect 执行 |
 | `profiles/guarded.md` | 保守档附录:给较弱 Implementer 的收紧规则 | 用保守档时的 Architect / Implementer |
 | `references/local-worktrees.md` | C 模式与 Multica:每轮起点、消息收发、确定 SHA 验收、串行集成、失败恢复、旧部署迁移 | C / 托管任务必读 |
 | `scripts/worktree_guard.py` | Python 3 标准库工具:只读探测、一次性记录起点、交付前检查 | C / 托管任务开工与交付时 |
-| `anti-patterns.md` | 反模式池(历史教训,持续追加) | 全员 |
+| `anti-patterns.md` | 反模式池:历史教训与源案例,持续追加 | 全员**按需查**:拿不准、疑似踩坑、做漏检回流时;不必每轮通读 |
 | `templates/` | channel 骨架、任务卡、Owner 交付报告、三份启动提示词 | 部署与日常 |
 
 ## 新项目部署流程(Architect 侧执行)
@@ -50,13 +51,13 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
    | --- | --- |
    | Architect | 设计能力最强的那个。它的上下文最贵,所以不让它记账 |
    | Implementer | 执行细致、能独立读懂代码库 → 标准档;较弱或易偏离 → 保守档 |
-   | Reviewer(可选) | 严谨、肯真跑;最好与 Implementer 异源。里程碑末才大量出场 |
+   | Reviewer(可选) | 严谨、肯真跑;最好与 Implementer 异源。里程碑末才大量出场;异源时也是大决策独立方案的首选出方(protocol §2.4) |
    | Conductor(可选) | Owner 主要跟它对话,所以要**说话清楚、不丢限定词**;要能可靠地跑命令、比对输出,不要求设计能力 → 基础档;还能读懂代码、说得出具体理由 → 初审档,与 Implementer 异源更好。agent 数不够时省掉它 |
 
-2. **定配置**(按已授权上下文与项目实情):信道位置、分支来源、项目门禁命令表(protocol §8)、注释/文案语言、**两级集成人与里程碑集成分支命名**(protocol §4)、**记账位置**(backlog、挂账、门禁记录、待 Owner 裁决清单、交付报告目录);C 模式还需登记发送分支、主干更新入口;
+2. **定配置**(按已授权上下文与项目实情):信道位置、分支来源、项目门禁命令表(protocol §8;**项目还没有类型检查和测试的,第一个里程碑的第一张卡就是把它们建起来并接到合入前自动运行,门禁命令表填好之前不派其他卡**)、高后果类别是否按项目增删(protocol §2.2)、修补批卡的改动量阈值(protocol §7.1)、注释/文案语言、**两级集成人与里程碑集成分支命名**(protocol §4)、**记账位置**(backlog、挂账、门禁记录、待 Owner 裁决清单、交付报告目录);C 模式还需登记发送分支、主干更新入口;
 3. **定工作区形态与管理者**:按 protocol §4 的只读拓扑探测区分 A(共享目录)、B(独立 clone)、C(本地并行 worktree),并记录 manual / multica。不能把「看不到未提交消息」直接判为 B。Reviewer 的独立 worktree 同样按 C 收发消息;
 4. **实例化进仓库**:A/B 使用 `templates/channel.md`;C 使用 `templates/channel-worktrees.md` 建部署配置,消息使用 `templates/message.md`。拷贝 `protocol.md`、各已部署角色的手册、`anti-patterns.md`、`templates/task-card-*.md`(含细化文件模板)、`templates/owner-report.md` 进项目(如 `docs/collab/`),填掉项目配置;用保守档时加 `profiles/guarded.md`;推荐同时拷贝 `architect.md`。C / 托管部署还要拷贝 `references/local-worktrees.md`、`scripts/worktree_guard.py` 及其引用的两个模板,保持相对目录结构,并在项目配置明确实际脚本路径;
-5. **给 Owner 出启动提示词**:按 `templates/implementer-bootstrap.md`(按部署再加 `conductor-bootstrap.md`、`reviewer-bootstrap.md`)填空,交 Owner 配置给对应 agent——只指路径不复制内容;
+5. **给 Owner 出启动提示词**:按 `templates/implementer-bootstrap.md`(按部署再加 `conductor-bootstrap.md`、`reviewer-bootstrap.md`)填空,交 Owner 配置给对应 agent——只指路径不复制内容。**能用宿主权限守住的边界,建议 Owner 在启动方式里直接收窄**:不该写代码的调用(如独立方案)用只读模式;不开"完全访问"类的默认放权;固定各角色的模型与推理档位(可用一个小的包装脚本)。被权限守住的边界,提示词里只留一句;
 6. **写部署宣告**,按已选通路送达并收显式确认,完成消息通路验证;
 7. 设计文档与 ADR 定稿 → 批量出第一个里程碑的卡(`architect.md` §1)→ 交 Conductor 派卡 → 协作开始。
 
@@ -77,11 +78,12 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 - 旧项目切换本地并行 worktree:按参考文档的「旧部署迁移」更新实例与启动提示词,不能只改母本;
 - **旧项目迁移到本版流程**(Architect 逐卡审核 → 按需唤起 + 收官评估;Reviewer 逐卡验收 → 里程碑验收;新增 Conductor 卡级门禁、里程碑集成分支、三区、Owner 交付报告):更新项目实例的 protocol / 各手册 / 卡片模板 / 启动提示词,登记各 Implementer 的档位、两级集成人与记账位置,在信道宣告生效点;在途卡按旧流程走完,新卡按新流程。**想保留旧流程的严格度,把 Implementer 登记为保守档即可**,不必停留在旧版本;
 - **Coordinator 改名为 Conductor(指挥)**:角色从"只管控制链路"扩展为 Owner 的主要对话入口。项目实例里把 coordinator.md、coordinator-bootstrap.md 换成新版,信道存档与部署配置里的角色名一并改掉,在信道宣告;
+- **旧项目升级到本版(高后果、独立方案、修补批卡、先检查后文字)**:更新项目实例的 protocol、各手册、卡片模板与启动提示词;在部署配置登记高后果类别与修补批卡阈值;Architect 给在途与未派的卡补标高后果,已标的卡按新规则逐卡验收;启动提示词里 anti-patterns 改为按需查。在信道宣告生效点;
 - **Conductor 开初审档**:更新项目实例的 conductor.md、implementer.md、protocol.md 与两份启动提示词,在部署配置登记 Conductor 档位;已经部署的基础档 Conductor 不需要改动,原来的行为就是基础档;
-- 我是 Architect:出卡 → `architect.md` §1;被唤起 → §2 的表;L1 → §3;判据确认与按需审核 → §4;退回定性 → §5;里程碑收官与写报告 → §6。未部署 Conductor 时派卡记账 → `conductor.md` §2、§5–§7;未部署 Reviewer 时验收合入 → `reviewer.md` §1–§4;
+- 我是 Architect:设计定稿前的大决策 → `architect.md` §1.1 与 protocol §2.4;出卡 → `architect.md` §1;被唤起 → §2 的表;L1 → §3;判据确认与按需审核 → §4;退回定性 → §5;里程碑收官与写报告 → §6。未部署 Conductor 时派卡记账 → `conductor.md` §2、§5–§7;未部署 Reviewer 时验收合入 → `reviewer.md` §1–§4;
 - 我是 Conductor:Owner 跟我说话 → `conductor.md` §1;派卡 → §2;收到交付 → §3 门禁与集成,初审档同时做 §4 初审;看到别的消息该不该动 → §5 的表;记账 → §6;里程碑收口与汇编 → §7;
 - 我是 Implementer:领卡 → `implementer.md` §1;细化判据 → §2;实施 → §3;交付 → §4–§5;退回 → §6;初审意见 → §6.1;
-- 我是 Reviewer:里程碑的卡全部集成 → `reviewer.md` §1、§2.1;对抗档/取证档的卡过了门禁 → §2.2–§2.3;出结论 → §3;合入主干 → §4。未部署 Conductor 时收到交付 → `conductor.md` §3;
+- 我是 Reviewer:里程碑的卡全部集成 → `reviewer.md` §1、§2.1;对抗档/取证档/高后果的卡过了门禁 → §2.2–§2.3;出结论 → §3;合入主干 → §4;收到独立方案请求 → §7。未部署 Conductor 时收到交付 → `conductor.md` §3;
 - **这件事该不该找 Owner** → `protocol.md` §6.2;**这件事在哪一区** → §6.1;
 - **接手代行 / 交回**:→ `protocol.md` §1.1——代行者权力边界、主干何时要等、交接对账消息;**半途卡不换手**;
 - 需要给其他 agent 指引时:指向**项目仓库内的实例文档**,不指向本 skill 路径(它们读不到)。**例外**:若其他 agent 自己也能加载本 skill(各自的 skills 目录里有同一份母本),则不必实例化协议文档,直接共享母本——单一事实源、无实例漂移;代价是母本里的【坑位】没有落点,门禁命令表、路径、形态与档位必须改由信道存档或项目内的指引文档承载,部署时要点名放在哪;
@@ -89,4 +91,6 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 
 ## 经验回流
 
-新项目跑出的新教训(出卡自查新增项、反模式、裁决先例、Owner 裁决规则的边界案例)先落项目实例文档,由 Owner 触发回流本母本——母本是跨项目资产,实例是项目现场。两处都改时先实例后母本,防漂移。
+新项目跑出的新教训(出卡自查新增项、反模式、裁决先例、Owner 裁决规则的边界案例)先按 protocol §7.3 判断能不能落成检查或模板结构;落成文字的先落项目实例文档,由 Owner 触发回流本母本——母本是跨项目资产,实例是项目现场。两处都改时先实例后母本,防漂移。
+
+**母本的写法**:规则只写做什么、不做什么,理由至多一句;源案例、日期、来龙去脉写进 `anti-patterns.md`。有脚本或检查守着的规则,文字只留一句并指明是哪个检查。

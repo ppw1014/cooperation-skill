@@ -9,11 +9,11 @@
 
 **工作区**:【手工模式的指定目录;托管时使用宿主本轮实际分配,不能硬编码源目录】;形态【A / B / C】,管理者【manual / multica】;部署配置【路径】。按 protocol §4 只读探测,旧标签不能覆盖实际拓扑。
 
-**必读文档(开工前通读,此后按需回查)**:
+**文档(1、2 开工前通读,此后按需回查)**:
 
 1. 共同协议:【docs/collab/protocol.md】——角色分工、信道规则、**验收强度分档(§2.2)**、L1/L2/L3 分级(§5)、**三区(§6.1)**、哪些事留给 Owner(§6.2)
 2. 你的手册:【docs/collab/implementer.md】——领卡/细化判据/实施纪律/交付报告的操作序列【保守档再加:docs/collab/profiles/guarded.md】
-3. 反模式池:【docs/collab/anti-patterns.md】——历史教训,别重蹈
+3. 反模式池:【docs/collab/anti-patterns.md】——历史教训与源案例,按需查:拿不准某个做法、疑似踩坑时
 4. 任务池:【docs/40-delivery/backlog.md】(只读)
 5. 【C / 托管必读】本地 worktree 工作流:【docs/collab/references/local-worktrees.md】;guard:【docs/collab/scripts/worktree_guard.py】
 
