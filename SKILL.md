@@ -5,13 +5,14 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 
 # 多 agent 协作框架
 
-一句话:**Architect 只在里程碑两头出场**——开头批量出薄卡(目标 + 完成判据 + 本卡约束),结尾做收官评估并签发给 Owner 的交付报告;中间 **Implementer 自主实现**(绿区直接做、黄区提案并继续、红区才停),**Steward(管家,可选)是 Owner 的主要对话对象:听懂 Owner 要什么、向各角色派工、用大白话汇报;同时派卡、逐卡过机械门禁并集成、记账,初审档另做逐卡初审**,**Reviewer(可选)在里程碑末把整体跑起来验收并合入主干**。Owner 只裁决真正该由 Owner 定的事,其余问题在交付前自己迭代掉。
+一句话:**Architect 只在里程碑两头出场**——开头一次出完本里程碑的薄卡(目标 + 完成判据 + 本卡约束),结尾做收官评估、签发给 Owner 的交付报告,回顾后再出下一个里程碑的卡(里程碑之间串行);中间 **Implementer 自主实现**(绿区直接做、黄区提案并继续、红区才停),**Steward(管家,可选)是 Owner 的主要对话对象:听懂 Owner 要什么、向各角色派工、用大白话汇报;同时派卡、逐卡过机械门禁并集成、记账,初审档另做逐卡初审**,**Reviewer(可选)在里程碑末把整体跑起来验收并合入主干**。Owner 只裁决真正该由 Owner 定的事,其余问题在交付前自己迭代掉。
 
 ```
 每张卡:  派卡 → 细化判据 → 实现 ⇄ 提案/裁决 → 交付 → 卡级门禁 → 合入集成分支
-         Cond.   Implementer ──────────────────────┘  Steward ─────────┘
+         Steward Implementer ──────────────────────┘  Steward ─────────┘
 里程碑:  设计/ADR → 批量出卡 →〔逐卡循环〕→ 里程碑验收 → 收官评估 ⇄ 自迭代 → 合入主干 → Owner 报告
          Architect ─────────┘              Reviewer     Architect           Reviewer   Architect
+         ↺ 合入主干后 Architect 回顾,出下一个里程碑的卡(里程碑之间串行)
 ```
 
 **每轮先确认工作区,再执行角色手册。** 本地并行 worktree 为形态 C;Multica 的目录、分支和本轮起点由宿主分配。遇到 C 或 Multica,先读 [本地 worktree 工作流](references/local-worktrees.md),并在任何 Git 写操作前执行其中的 guard `start`。沿起点追加提交,不 amend 宿主 checkpoint、不按旧模板重建分支。已部署项目也要走这一步。
@@ -21,7 +22,7 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 ## 五个要先讲清楚的设计
 
 1. **内容链路与控制链路分开**(protocol §1):设计 → 卡面 → 实现 → 验收这条链上不放转述者。Steward 不做内容决定——派卡、记账、对着封闭清单过门禁,结论都不靠判断;卡面永远出自 Architect。它是 Owner 的主要对话入口,把 Owner 的需求派给 Architect 时附原话——换说法可以,换实质不行。能读懂代码的 Steward 可以开初审档,对每张交付提不阻塞的改进意见和具体肯定:**放开"说",不放开"判"**;
-2. **检查分三层,各管一件事**(protocol §2):卡级门禁每张卡都做,只查能机械判定的;里程碑验收把整体实际跑起来;收官评估看结构并给每个问题归类。代价是常规卡的实测推迟到里程碑末,所以**里程碑要切小**。验收强度看两个问题:谁会攻击它(常规 / 对抗)、写错了会造成哪类后果(钱、越权、对外发出等叠加高后果);对抗档、取证档、高后果的卡仍逐卡验收;
+2. **检查分三层,各管一件事**(protocol §2):卡级门禁每张卡都做,只查能机械判定的;里程碑验收把整体实际跑起来;收官评估看结构并给每个问题归类。代价是常规卡的实测推迟到里程碑末,里程碑之间又是串行的(下一批卡在收官回顾后才出),所以**里程碑要切小**。验收强度看两个问题:谁会攻击它(常规 / 对抗)、写错了会造成哪类后果(钱、越权、对外发出等叠加高后果);对抗档、取证档、高后果的卡仍逐卡验收;
 3. **决策按回退成本分层**(protocol §6):回退只动本卡代码 → Implementer 直接做;回退封在本卡内 → 提案并继续;会外溢或不可逆 → 停下等裁决;产品方向、主观体验、已批准的契约、花钱 → Owner。**有客观依据且修法清楚的问题,任何一层都不往上交**;
 4. **规则按档位取用**(protocol §1.3):正文按强模型写。Implementer 是较弱模型时登记为保守档,叠加 `profiles/guarded.md`——黄区并入红区、Architect 写全卡面、逐卡审核。Steward 分基础档(只跑清单)与初审档(加逐卡初审与跨卡观察),按模型能力登记;
 5. **教训先变检查,再写文字**(protocol §7.3):被纠正一次、退回一条,先问能不能写成守卫测试或脚本并入门禁,其次改结构让错的写不出来,都不行才写文字规则;有检查守着的文字缩成一句。手册只写做什么、不做什么,源案例放 `anti-patterns.md` 按需查。大决策在设计定稿前另由异源 agent 盲出一份独立方案(protocol §2.4)。
@@ -59,7 +60,7 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 4. **实例化进仓库**:A/B 使用 `templates/channel.md`;C 使用 `templates/channel-worktrees.md` 建部署配置,消息使用 `templates/message.md`。拷贝 `protocol.md`、各已部署角色的手册、`anti-patterns.md`、`templates/task-card-*.md`(含细化文件模板)、`templates/owner-report.md` 进项目(如 `docs/collab/`),填掉项目配置;用保守档时加 `profiles/guarded.md`;推荐同时拷贝 `architect.md`。C / 托管部署还要拷贝 `references/local-worktrees.md`、`scripts/worktree_guard.py` 及其引用的两个模板,保持相对目录结构,并在项目配置明确实际脚本路径;
 5. **给 Owner 出启动提示词**:按 `templates/implementer-bootstrap.md`(按部署再加 `steward-bootstrap.md`、`reviewer-bootstrap.md`)填空,交 Owner 配置给对应 agent——只指路径不复制内容。**能用宿主权限守住的边界,建议 Owner 在启动方式里直接收窄**:不该写代码的调用(如独立方案)用只读模式;不开"完全访问"类的默认放权;固定各角色的模型与推理档位(可用一个小的包装脚本)。被权限守住的边界,提示词里只留一句;
 6. **写部署宣告**,按已选通路送达并收显式确认,完成消息通路验证;
-7. 设计文档与 ADR 定稿 → 批量出第一个里程碑的卡(`architect.md` §1)→ 交 Steward 派卡 → 协作开始。
+7. 设计文档与 ADR 定稿(含里程碑路线)→ 批量出第一个里程碑的卡(`architect.md` §1)→ 交 Steward 派卡 → 协作开始。之后每个里程碑收官、合入主干后,Architect 回顾再出下一个里程碑的卡(`architect.md` §6.5)。
 
 **部署时要讲清楚的四件事**(不讲清楚必出事):
 
@@ -79,8 +80,9 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 - **旧项目迁移到本版流程**(Architect 逐卡审核 → 按需唤起 + 收官评估;Reviewer 逐卡验收 → 里程碑验收;新增 Steward 卡级门禁、里程碑集成分支、三区、Owner 交付报告):更新项目实例的 protocol / 各手册 / 卡片模板 / 启动提示词,登记各 Implementer 的档位、两级集成人与记账位置,在信道宣告生效点;在途卡按旧流程走完,新卡按新流程。**想保留旧流程的严格度,把 Implementer 登记为保守档即可**,不必停留在旧版本;
 - **Coordinator / Conductor 改名为 Steward(管家)**:Coordinator 时期角色只管控制链路,改名 Conductor 时扩展为 Owner 的主要对话入口,现统一叫 Steward,职责不变。项目实例里把 coordinator.md / conductor.md 与对应的 bootstrap 换成 steward.md、steward-bootstrap.md,信道存档、部署配置与提交尾注署名(protocol §8.1)里的角色名一并改掉,在信道宣告;
 - **旧项目升级到本版(高后果、独立方案、修补批卡、先检查后文字)**:更新项目实例的 protocol、各手册、卡片模板与启动提示词;在部署配置登记高后果类别与修补批卡阈值;Architect 给在途与未派的卡补标高后果,已标的卡按新规则逐卡验收;启动提示词里 anti-patterns 改为按需查。在信道宣告生效点;
+- **旧项目改为里程碑串行出卡**:更新项目实例的 protocol(§2 流程图、§7.1)、architect.md(§1.1、§2 唤起表、§6.5)与 steward.md(§2、§7);设计文档里补齐里程碑路线。已经提前出好的下一个里程碑的卡,在本里程碑回顾时由 Architect 复核后再派;已经并行在跑的下一个里程碑照旧走完,从再下一个里程碑起串行。在信道宣告生效点;
 - **Steward 开初审档**:更新项目实例的 steward.md、implementer.md、protocol.md 与两份启动提示词,在部署配置登记 Steward 档位;已经部署的基础档 Steward 不需要改动,原来的行为就是基础档;
-- 我是 Architect:设计定稿前的大决策 → `architect.md` §1.1 与 protocol §2.4;出卡 → `architect.md` §1;被唤起 → §2 的表;L1 → §3;判据确认与按需审核 → §4;退回定性 → §5;里程碑收官与写报告 → §6。未部署 Steward 时派卡记账 → `steward.md` §2、§5–§7;未部署 Reviewer 时验收合入 → `reviewer.md` §1–§4;
+- 我是 Architect:设计定稿前的大决策 → `architect.md` §1.1 与 protocol §2.4;出卡 → `architect.md` §1;被唤起 → §2 的表;L1 → §3;判据确认与按需审核 → §4;退回定性 → §5;里程碑收官与写报告 → §6;回顾并出下一个里程碑的卡 → §6.5。未部署 Steward 时派卡记账 → `steward.md` §2、§5–§7;未部署 Reviewer 时验收合入 → `reviewer.md` §1–§4;
 - 我是 Steward:Owner 跟我说话 → `steward.md` §1;派卡 → §2;收到交付 → §3 门禁与集成,初审档同时做 §4 初审;看到别的消息该不该动 → §5 的表;记账 → §6;里程碑收口与汇编 → §7;
 - 我是 Implementer:领卡 → `implementer.md` §1;细化判据 → §2;实施 → §3;交付 → §4–§5;退回 → §6;初审意见 → §6.1;
 - 我是 Reviewer:里程碑的卡全部集成 → `reviewer.md` §1、§2.1;对抗档/取证档/高后果的卡过了门禁 → §2.2–§2.3;出结论 → §3;合入主干 → §4;收到独立方案请求 → §7。未部署 Steward 时收到交付 → `steward.md` §3;
