@@ -5,7 +5,10 @@ to: "<one-recipient>"
 cc: []
 in_reply_to: []
 ack: []
-kind: "<dispatch|question|refinement|proposal|blocked|decision|delivery|gate|review|acceptance|return|milestone-acceptance|milestone-review|closeout>"
+kind: "<dispatch|question|refinement|proposal|blocked|decision|delivery|gate|review|acceptance|return|ruling|design-request|design|milestone-acceptance|milestone-review|closeout|probe|handover>"
+# kind 与 protocol §3.2 消息类型一一对应:dispatch 派卡 / question 技术问答 / refinement 完成判据细化 / proposal L1-提案 / blocked L1-停 / decision 裁决 /
+# delivery 交付报告 / gate 门禁结论 / review 按需审核结论 / acceptance 逐卡验收结论 / return 退回 / ruling 定性 / design-request 独立方案请求 / design 独立方案 /
+# milestone-acceptance 里程碑验收 / milestone-review 收官评估 / closeout 收口通知 / probe 形态探测 / handover 交接对账。不另造词
 task: "<task-id>"
 run_id: "<current-run-id>"
 branch: "<actual-branch-or-detached>"

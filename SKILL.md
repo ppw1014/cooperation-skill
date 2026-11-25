@@ -38,7 +38,8 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 | `reviewer.md` | 里程碑验收、对抗档/取证档/高后果逐卡验收、台账与问题清单、独立方案、合入主干、漏检回流 | Reviewer;未部署时由 Architect 执行 |
 | `profiles/guarded.md` | 保守档附录:给较弱 Implementer 的收紧规则 | 用保守档时的 Architect / Implementer |
 | `references/local-worktrees.md` | C 模式与 Multica:每轮起点、消息收发、确定 SHA 验收、串行集成、失败恢复、旧部署迁移 | C / 托管任务必读 |
-| `scripts/worktree_guard.py` | Python 3 标准库工具:只读探测、一次性记录起点、交付前检查 | C / 托管任务开工与交付时 |
+| `scripts/worktree_guard.py` | Python 3 标准库工具:只读探测、一次性记录起点、交付前检查(可补验 `task_base`,报告未提交改动) | C / 托管任务开工与交付时 |
+| `tests/` | 母本自检:guard 行为、文档一致性(相对链接、旧角色名、消息类型与 `kind` 对齐、信道自验命令与标题格式) | 改母本的人,改完跑 `python3 -B -m unittest discover -s tests` |
 | `anti-patterns.md` | 反模式池:历史教训与源案例,持续追加 | 全员**按需查**:拿不准、疑似踩坑、做漏检回流时;不必每轮通读 |
 | `templates/` | channel 骨架、任务卡、Owner 交付报告、三份启动提示词 | 部署与日常 |
 
@@ -81,6 +82,7 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 - **Coordinator / Conductor 改名为 Steward(管家)**:Coordinator 时期角色只管控制链路,改名 Conductor 时扩展为 Owner 的主要对话入口,现统一叫 Steward,职责不变。项目实例里把 coordinator.md / conductor.md 与对应的 bootstrap 换成 steward.md、steward-bootstrap.md,信道存档、部署配置与提交尾注署名(protocol §8.1)里的角色名一并改掉,在信道宣告;
 - **旧项目升级到本版(高后果、独立方案、修补批卡、先检查后文字)**:更新项目实例的 protocol、各手册、卡片模板与启动提示词;在部署配置登记高后果类别与修补批卡阈值;Architect 给在途与未派的卡补标高后果,已标的卡按新规则逐卡验收;启动提示词里 anti-patterns 改为按需查。在信道宣告生效点;
 - **旧项目改为里程碑串行出卡**:更新项目实例的 protocol(§2 流程图、§7.1)、architect.md(§1.1、§2 唤起表、§6.5)与 steward.md(§2、§7);设计文档里补齐里程碑路线。已经提前出好的下一个里程碑的卡,在本里程碑回顾时由 Architect 复核后再派;已经并行在跑的下一个里程碑照旧走完,从再下一个里程碑起串行。在信道宣告生效点;
+- **旧项目升级到流程边界修订版(2026-11-25)**:更新项目实例的 protocol(§3.1 信道自验命令、§3.2 消息类型、§2.3 第 4 项、§5 提案早答复、§7.1「没合入主干时」)、architect.md(§2 唤起表、§6.5)、steward.md(§2 派卡字段与集成分支来源、§3 操作序列、§4.3、§5、§7)、implementer.md(§6.1「现在改」)、内容卡模板、message 模板与 Reviewer / Steward 启动提示词;C 模式项目同步 `scripts/worktree_guard.py`。部署配置补登 Steward 档位、门禁记录路径、代行映射与提交署名代号(已有的不动)。在途的卡不受影响,在信道宣告生效点;
 - **Steward 开初审档**:更新项目实例的 steward.md、implementer.md、protocol.md 与两份启动提示词,在部署配置登记 Steward 档位;已经部署的基础档 Steward 不需要改动,原来的行为就是基础档;
 - 我是 Architect:设计定稿前的大决策 → `architect.md` §1.1 与 protocol §2.4;出卡 → `architect.md` §1;被唤起 → §2 的表;L1 → §3;判据确认与按需审核 → §4;退回定性 → §5;里程碑收官与写报告 → §6;回顾并出下一个里程碑的卡 → §6.5。未部署 Steward 时派卡记账 → `steward.md` §2、§5–§7;未部署 Reviewer 时验收合入 → `reviewer.md` §1–§4;
 - 我是 Steward:Owner 跟我说话 → `steward.md` §1;派卡 → §2;收到交付 → §3 门禁与集成,初审档同时做 §4 初审;看到别的消息该不该动 → §5 的表;记账 → §6;里程碑收口与汇编 → §7;
@@ -93,6 +95,6 @@ description: 多 agent 协作框架(Architect 设计/批量出卡/裁决/收官 
 
 ## 经验回流
 
-新项目跑出的新教训(出卡自查新增项、反模式、裁决先例、Owner 裁决规则的边界案例)先按 protocol §7.3 判断能不能落成检查或模板结构;落成文字的先落项目实例文档,由 Owner 触发回流本母本——母本是跨项目资产,实例是项目现场。两处都改时先实例后母本,防漂移。
+新项目跑出的新教训(出卡自查新增项、反模式、裁决先例、Owner 裁决规则的边界案例)先按 protocol §7.3 判断能不能落成检查或模板结构;落成文字的先落项目实例文档,由 Owner 触发回流本母本——母本是跨项目资产,实例是项目现场。两处都改时先实例后母本,防漂移。改完母本跑一遍 `tests/`,文档一致性测试会拦住改名残留、断链和模板与正文不同步。
 
 **母本的写法**:规则只写做什么、不做什么,理由至多一句;源案例、日期、来龙去脉写进 `anti-patterns.md`。有脚本或检查守着的规则,文字只留一句并指明是哪个检查。

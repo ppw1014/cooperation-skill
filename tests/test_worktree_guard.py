@@ -69,6 +69,30 @@ class WorktreeGuardTests(unittest.TestCase):
     def check(self, repo=None, run_id="turn-1", code=0):
         return self.guard(repo or self.task, "check", "--run-id", run_id, code=code)
 
+    def test_check_accepts_late_task_base_without_writing_it(self):
+        self.begin()
+        result = self.guard(self.task, "check", "--run-id", "turn-1", "--task-base", self.base)
+        self.assertEqual(result["task_base"], self.base)
+        self.assertEqual(result["task_base_source"], "argument")
+        record = json.loads(Path(result["record"]).read_text(encoding="utf-8"))
+        self.assertIsNone(record["task_base"])
+        other = self.save(self.repo, "other.txt", "other\n", "other")
+        failed = self.guard(self.task, "check", "--run-id", "turn-1", "--task-base", other, code=1)
+        self.assertIn("HEAD does not contain task_base " + other, failed["failures"])
+
+    def test_check_rejects_task_base_that_differs_from_record(self):
+        self.begin(None, "turn-1", "--task-base", self.base)
+        failed = self.guard(self.task, "check", "--run-id", "turn-1", "--task-base", self.start, code=1)
+        self.assertTrue(any("differs from recorded" in f for f in failed["failures"]))
+
+    def test_check_reports_dirty_worktree_without_failing(self):
+        self.begin()
+        self.assertFalse(self.check()["dirty"])
+        (self.task / "scratch.txt").write_text("x\n", encoding="utf-8")
+        result = self.check()
+        self.assertTrue(result["dirty"])
+        self.assertIn("scratch.txt", result["dirty_paths"])
+
     def test_unchanged_and_descendant_pass_without_moving_start(self):
         initial = self.begin()
         self.check()

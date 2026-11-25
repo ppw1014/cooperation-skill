@@ -70,7 +70,8 @@
 3. 任务池:【docs/40-delivery/backlog.md】(状态行由你维护;卡序与卡面内容归 Architect,Owner 明确指定的先后顺序你可以直接执行并告知 Architect)
 4. 挂账、待 Owner 裁决清单、门禁记录:【路径】
 5. 交付报告模板:【docs/collab/templates/owner-report.md】
-6. 【C / 托管必读】本地 worktree 工作流:【docs/collab/references/local-worktrees.md】;guard:【docs/collab/scripts/worktree_guard.py】
+6. 反模式池:【docs/collab/anti-patterns.md】——按需查:拿不准某条门禁退回算不算越线、写初审意见前、做漏检回流时
+7. 【C / 托管必读】本地 worktree 工作流:【docs/collab/references/local-worktrees.md】;guard:【docs/collab/scripts/worktree_guard.py】
 
 **工作区**:【手工指定目录;托管时沿用宿主本轮实际分配】;形态【A / B / C】,管理者【manual / multica】;部署配置【路径】。门禁要在合并态复跑,【形态 A 时:推荐用独立 worktree,不碰共享工作区】。
 

@@ -14,11 +14,13 @@
 >   收件人**唯一**,是这条消息要求动作的一方;需要知情但不需要动作的写进抄送。
 > - A 中 `git add` 本文件 = 主收件人的已读回执,自己的消息不 add;抄送用 `git diff HEAD -- 本文件` 读。B 提交本方消息并显式写已读水位,不通过 staging 通知另一个 clone;
 > - 本文件永久豁免一切任务卡"涉及范围"限制;
-> - 需要 Owner 决策的事项不走信道。
+> - 阻塞性的 Owner 裁决另找 Owner 当面问;Owner 的原话、结论与授权落进信道或待 Owner 裁决清单(protocol §6.2)。
 >
-> 角色部署与模型来源:【Architect =? ｜ Implementer =?(档位:标准/保守)｜ Steward = ?/未部署 ｜ Reviewer = ?/未部署】——未部署的角色由 Architect 兼
+> 角色部署与模型来源:【Architect =? ｜ Implementer =?(档位:标准/保守)｜ Steward = ?/未部署(档位:基础/初审)｜ Reviewer = ?/未部署】——未部署的角色由 Architect 兼
 > 集成人:卡级【Steward;未部署为 Reviewer】｜ 主干【Reviewer;未部署为 Architect】｜ 里程碑集成分支命名【milestone/<里程碑>】
-> 记账位置:backlog【路径】｜ 挂账【路径】｜ 待 Owner 裁决清单【路径】｜ 交付报告【docs/collab/reports/】
+> 记账位置:backlog【路径】｜ 挂账【路径】｜ 待 Owner 裁决清单【路径】｜ 门禁记录【路径;证据目录】｜ 交付报告【docs/collab/reports/】
+> 代行映射:【Steward 断线 → 派卡记账归谁、门禁归谁;Reviewer 断线 → 谁代行】(protocol §1.1)｜ 提交署名代号:【各角色代号】(protocol §8.1)
+> 验收强度配置:高后果类别【沿用默认六类 / 增删:…】｜ 修补批卡阈值【沿用默认 / …】(protocol §2.2、§7.1)
 > 工作区形态:【A 共享本地工作区 / B 独立 clone——按 protocol §4 拓扑探测后填写;若为 C 改用对应模板】;管理者:【manual / multica】
 > 【形态 A 时补填】集成与验收用的工作区:Steward【A-共享 / A-独立】｜ Reviewer【A-共享 / A-独立】(protocol §4,推荐 A-独立)
 

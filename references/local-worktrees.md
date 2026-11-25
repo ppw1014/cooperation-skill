@@ -25,7 +25,7 @@ python3 scripts/worktree_guard.py start --run-id "$collab_run_id" --task-base <t
 - 示例运行 ID 必须替换为本次执行的唯一 ID,优先使用宿主提供的执行 ID;没有时为本轮生成一次 UUID 并保留。ID 用 ASCII 字母、数字、点、下划线、连字符,不超过 128 字符。上下文恢复、重复检查沿用同一 ID;真正的新一轮才换 ID。
 - `task_base` 是派卡消息给出的确定基线,跨轮保持不变;`run_start` 是这轮第一条 Git 写操作前的实际 HEAD,每轮重新捕获。尚未派卡时可省略 `--task-base`,但交付仍须核对派卡消息给出的基线;不能重写记录来补字段。
 - 脚本记录到本 worktree 的 `git_dir/cooperation-skill/runs/<run-id>.json`,不进入工作树;按各自 git-dir 定位,不能统一用 common-dir 构造状态路径。同一运行的 `start` 不覆盖已存在记录,重复运行会校验原记录。
-- `start` 先固定起点,允许任务基线尚未合入;交付 `check` 同时要求起点和已记录的 `task_base` 都可达。对象不存在时先通过只读 Git 查询/已授权 fetch 取得对象,不要移动 HEAD。
+- `start` 先固定起点,允许任务基线尚未合入;交付 `check` 同时要求起点和已记录的 `task_base` 都可达;`start` 时还没拿到基线的,`check --task-base <sha>` 补验祖先关系(只验不写回;与已记录的不一致直接判失败)。对象不存在时先通过只读 Git 查询/已授权 fetch 取得对象,不要移动 HEAD。
 - 已做过 Git 写操作才发现忘了记录时,不能把当前 HEAD 当成本轮起点。先从宿主本轮上下文和 reflog 取证,报告缺失的开工检查;本脚本不支持事后指定或覆盖 `run_start`。
 
 部署到项目时,把上述脚本路径替换成配置中的实际路径(例如 `docs/collab/scripts/worktree_guard.py`)。用 `--repo <任务工作区>` 可从别处检查原运行,该全局参数放在子命令之前。
@@ -78,7 +78,7 @@ docs/collab/messages/<task>/<run-id>/002.md
 python3 scripts/worktree_guard.py check --run-id "$collab_run_id"
 ```
 
-返回 `0` 表示检查通过,`1` 表示身份/祖先关系不符,`2` 表示记录缺失、Git 或输入错误。`check` 不写文件、不移动分支、不修复历史;在最终消息提交之后再执行。它检查当前 Git 状态,不证明宿主稍后记录成功,也不是拦截所有 Git 命令的 hook。
+返回 `0` 表示检查通过,`1` 表示身份/祖先关系不符,`2` 表示记录缺失、Git 或输入错误。输出里的 `dirty` / `dirty_paths` 报告工作区未提交的改动,不算失败:交付前看到 `true` 先确认是不是忘了提交。`check` 不写文件、不移动分支、不修复历史;在最终消息提交之后再执行。它检查当前 Git 状态,不证明宿主稍后记录成功,也不是拦截所有 Git 命令的 hook。
 
 门禁、逐卡验收与按需审核的代码范围都是派卡消息确定的 `task_base..delivery_sha`,不能用空的工作区 diff 或移动中的分支 HEAD 替代。基线中继承的改动与本卡增量分别披露。
 

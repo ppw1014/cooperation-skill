@@ -129,7 +129,7 @@ ln -s ~/Projects/cooperation-skill ~/.codex/skills/cooperation-skill
 
 每轮第一条 Git 写操作前执行 `python3 scripts/worktree_guard.py start --run-id <本轮唯一ID>`,交付消息提交后执行 `check --run-id <同一ID>`。记录按 worktree/运行隔离,重复 start 不覆盖;检查失败保留现场。详细配置、路径与边界见 [工作流](references/local-worktrees.md)。
 
-本地验证:`python3 -B -m unittest discover -s tests -v`。测试使用自动清理的临时 Git 仓库;通过不代表已验证 Multica 的实际记录与回收流程。
+本地验证:`python3 -B -m unittest discover -s tests -v`。其中 `test_docs.py` 检查母本文档一致性(相对链接、旧角色名、消息类型与 `kind` 对齐、信道自验命令与标题格式),改完文档也要跑。测试使用自动清理的临时 Git 仓库;通过不代表已验证 Multica 的实际记录与回收流程。
 
 ## 出处与成色
 
